@@ -103,6 +103,3 @@ npm run test:int
 
 # Run only API tests
 npm run test:api
-
-
-### Let me know your GitHub username and I’ll insert it for you. Also, I can help you host the project live or generate a badge (test coverage, build passing) for the top of your `README.md` if you'd like.
