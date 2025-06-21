@@ -7,9 +7,9 @@ router.get("/", async (req, res) => {
   const books = await Book.find();
 
   // 👉 Check the Accept header
-  if (!req.headers.accept || req.headers.accept.includes("application/json")) {
-  return res.json(books);
-}
+  if (req.headers.accept && req.headers.accept.includes("application/json")) {
+    return res.json(books); // 🟢 Postman or API request
+  }
 
   // 🟢 Build HTML for browser
   const bookCards = books.map(book => `

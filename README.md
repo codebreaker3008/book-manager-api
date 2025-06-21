@@ -16,7 +16,7 @@ A simple and customizable Book Management REST API built with **Node.js**, **Exp
 - Delete books
 - Hosted on MongoDB Atlas
 - CORS-enabled for frontend support
-
+## THE UPDATE AND DELETE OPTION ARE AVAILABLE WHEN YOU VIEW THE COLLECTION
 ---
 
 ## 🧱 Tech Stack
