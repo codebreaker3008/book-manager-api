@@ -43,7 +43,6 @@
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Book'
- *
  *   post:
  *     summary: Add a new book
  *     tags: [Books]
@@ -57,6 +56,73 @@
  *       201:
  *         description: Book created successfully
  */
+
+/**
+ * @swagger
+ * /api/books/{id}:
+ *   get:
+ *     summary: Get a book by ID
+ *     tags: [Books]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The book ID
+ *     responses:
+ *       200:
+ *         description: Book found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       404:
+ *         description: Book not found
+ *   put:
+ *     summary: Update a book
+ *     tags: [Books]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the book to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Book'
+ *     responses:
+ *       200:
+ *         description: Book updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: Book not found
+ *   delete:
+ *     summary: Delete a book
+ *     tags: [Books]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the book to delete
+ *     responses:
+ *       200:
+ *         description: Book deleted successfully
+ *       404:
+ *         description: Book not found
+ */
+
 const express = require("express");
 const router = express.Router();
 const Book = require("../models/Book");
@@ -150,8 +216,15 @@ router.put("/:id", async (req, res, next) => {
 
 // DELETE a book
 router.delete("/:id", async (req, res) => {
-  await Book.findByIdAndDelete(req.params.id);
-  res.json({ message: "Book deleted" });
-});
+  try {
+    const deleted = await Book.findByIdAndDelete(req.params.id);
 
-module.exports = router;
+    if (!deleted) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+
+    res.json({ message: "Book deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ error: "Invalid book ID" });
+  }
+});
