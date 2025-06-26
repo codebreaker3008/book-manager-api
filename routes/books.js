@@ -1,3 +1,62 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Book:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *         - genre
+ *         - publishedYear
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated ID of the book
+ *         title:
+ *           type: string
+ *         author:
+ *           type: string
+ *         genre:
+ *           type: string
+ *         publishedYear:
+ *           type: integer
+ *       example:
+ *         title: "Sapiens"
+ *         author: "Yuval Noah Harari"
+ *         genre: "History"
+ *         publishedYear: 2011
+ */
+
+/**
+ * @swagger
+ * /api/books:
+ *   get:
+ *     summary: Get all books
+ *     tags: [Books]
+ *     responses:
+ *       200:
+ *         description: List of all books
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Book'
+ *
+ *   post:
+ *     summary: Add a new book
+ *     tags: [Books]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Book'
+ *     responses:
+ *       201:
+ *         description: Book created successfully
+ */
 const express = require("express");
 const router = express.Router();
 const Book = require("../models/Book");
@@ -11,6 +70,8 @@ router.get("/", async (req, res) => {
     return res.json(books); // 🟢 Postman or API request
   }
 
+
+  
   // 🟢 Build HTML for browser
   const bookCards = books.map(book => `
     <div class="card">
@@ -62,17 +123,30 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST add a new book
-router.post("/", async (req, res) => {
-  const newBook = new Book(req.body);
-  await newBook.save();
-  res.status(201).json(newBook);
+router.post("/", async (req, res, next) => {
+  try {
+    const newBook = new Book(req.body);
+    await newBook.save();
+    res.status(201).json(newBook);
+  } catch (error) {
+    next(error); // Pass validation error to middleware
+  }
 });
 
 // PUT update book
-router.put("/:id", async (req, res) => {
-  const updated = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.json(updated);
+router.put("/:id", async (req, res, next) => {
+  try {
+    const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true // 🔥 ensure validations are run on update
+    });
+    if (!updated) return res.status(404).json({ error: "Book not found" });
+    res.json(updated);
+  } catch (error) {
+    next(error);
+  }
 });
+
 
 // DELETE a book
 router.delete("/:id", async (req, res) => {
