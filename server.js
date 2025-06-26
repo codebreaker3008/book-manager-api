@@ -2,12 +2,41 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const YAML = require("yamljs");
+const swaggerDoc = YAML.load("./openapi.yaml");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+
+
+
 
 // Load environment variables
 dotenv.config();
 
+
 // Initialize express app
 const app = express();
+
+const setupSwagger = require("./swagger"); // Import the setup function
+setupSwagger(app); // Call it after middleware and routes
+
+
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+
+const swaggerSpec = swaggerJsdoc({
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Book Manager API",
+      version: "1.0.0",
+    },
+  },
+  apis: ["./routes/*.js"], // adjust if your routes are elsewhere
+});
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 // Middleware
 app.use(cors());
@@ -51,6 +80,16 @@ app.post("/update-book/:id", async (req, res) => {
     res.status(500).send("Error updating book.");
   }
 });
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err.message);
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({ error: err.message });
+  }
+  res.status(500).json({ error: "Internal Server Error" });
+});
+
 
 
 // MongoDB Atlas connection
@@ -302,11 +341,9 @@ app.get("/edit-book/:id", async (req, res) => {
   });
 
   // 🚀 Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-});
-
+  app.listen(5000, () => {
+    console.log("🚀 Server is running at http://localhost:5000");
+  });
 })
 .catch(err => {
   console.error("❌ MongoDB connection error:", err);
