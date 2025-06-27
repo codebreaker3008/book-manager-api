@@ -180,17 +180,16 @@ router.get("/", async (req, res) => {
   `);
 });
 
-// ✅ POST /api/books - create new book
-router.post("/", async (req, res, next) => {
+// POST /api/books
+router.post("/", async (req, res) => {
   try {
     const newBook = new Book(req.body);
     await newBook.save();
     res.status(201).json(newBook);
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
-
 // ✅ GET /api/books/:id - get book by ID
 router.get("/:id", async (req, res) => {
   try {
@@ -202,17 +201,21 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ PUT /api/books/:id - update book
-router.put("/:id", async (req, res, next) => {
+// PUT /api/books/:id
+router.put("/:id", async (req, res) => {
   try {
     const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true
+      runValidators: false // 👈 disables mongoose validators
     });
-    if (!updated) return res.status(404).json({ message: "Book not found" });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
     res.json(updated);
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
