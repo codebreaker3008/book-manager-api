@@ -22,7 +22,7 @@ setupSwagger(app); // Call it after middleware and routes
 
 
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 const swaggerSpec = swaggerJsdoc({
   definition: {
@@ -35,12 +35,12 @@ const swaggerSpec = swaggerJsdoc({
   apis: ["./routes/*.js"], // adjust if your routes are elsewhere
 });
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+(cors());
+(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -90,6 +90,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err.message);
+  
+  if (err.name === "ValidationError") {
+    return res.status(400).json({ error: "Invalid input" });
+  }
+
+  if (err.name === "CastError") {
+    return res.status(400).json({ error: "Invalid ID format" });
+  }
+
+  res.status(500).json({ error: "Internal Server Error" });
+});
 
 
 // MongoDB Atlas connection
