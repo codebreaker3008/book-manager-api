@@ -1,3 +1,7 @@
+const express = require("express");
+const router = express.Router();
+const Book = require("../models/Book");
+
 /**
  * @swagger
  * components:
@@ -55,6 +59,10 @@
  *     responses:
  *       201:
  *         description: Book created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
  */
 
 /**
@@ -123,22 +131,14 @@
  *         description: Book not found
  */
 
-const express = require("express");
-const router = express.Router();
-const Book = require("../models/Book");
-
-// GET all books
+// ✅ GET all books
 router.get("/", async (req, res) => {
   const books = await Book.find();
 
-  // 👉 Check the Accept header
   if (req.headers.accept && req.headers.accept.includes("application/json")) {
-    return res.json(books); // 🟢 Postman or API request
+    return res.json(books);
   }
 
-
-  
-  // 🟢 Build HTML for browser
   const bookCards = books.map(book => `
     <div class="card">
       <h2>📘 ${book.title}</h2>
@@ -180,51 +180,53 @@ router.get("/", async (req, res) => {
   `);
 });
 
-module.exports = router;
-
-// GET a specific book by ID
-router.get("/:id", async (req, res) => {
-  const book = await Book.findById(req.params.id);
-  res.json(book);
-});
-
-// POST add a new book
-router.post("/:id", async (req, res, next) => {
+// ✅ POST /api/books - create new book
+router.post("/", async (req, res, next) => {
   try {
     const newBook = new Book(req.body);
     await newBook.save();
     res.status(201).json(newBook);
   } catch (error) {
-    next(error); // Pass validation error to middleware
+    next(error);
   }
 });
 
-// PUT update book
+// ✅ GET /api/books/:id - get book by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ message: "Book not found" });
+    res.json(book);
+  } catch (err) {
+    res.status(400).json({ error: "Invalid book ID" });
+  }
+});
+
+// ✅ PUT /api/books/:id - update book
 router.put("/:id", async (req, res, next) => {
   try {
     const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true // 🔥 ensure validations are run on update
+      runValidators: true
     });
-    if (!updated) return res.status(404).json({ error: "Book not found" });
+    if (!updated) return res.status(404).json({ message: "Book not found" });
     res.json(updated);
   } catch (error) {
     next(error);
   }
 });
 
-
-// DELETE a book
+// ✅ DELETE /api/books/:id - delete book
 router.delete("/:id", async (req, res) => {
   try {
     const deleted = await Book.findByIdAndDelete(req.params.id);
-
     if (!deleted) {
-      return res.status(404).json({ error: "Book not found" });
+      return res.status(404).json({ message: "Book not found" });
     }
-
     res.json({ message: "Book deleted successfully" });
   } catch (error) {
     res.status(400).json({ error: "Invalid book ID" });
   }
 });
+
+module.exports = router;
