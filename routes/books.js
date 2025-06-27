@@ -131,7 +131,7 @@ const Book = require("../models/Book");
  *         description: Book not found
  */
 
-// GET all books
+// ✅ GET all books
 router.get("/", async (req, res) => {
   try {
     const books = await Book.find();
@@ -141,14 +141,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST create new book
+// ✅ POST add a new book
 router.post("/", async (req, res) => {
-  if (!isValidBook(req.body)) {
+  const { title, author, genre, publishedYear } = req.body;
+
+  if (!title || !author || !genre || !publishedYear) {
     return res.status(400).json({ message: "Invalid input" });
   }
 
   try {
-    const newBook = new Book(req.body);
+    const newBook = new Book({ title, author, genre, publishedYear });
     await newBook.save();
     res.status(201).json(newBook);
   } catch (error) {
@@ -156,23 +158,19 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET book by ID
+// ✅ GET a specific book by ID
 router.get("/:id", async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
     if (!book) return res.status(404).json({ message: "Book not found" });
     res.status(200).json(book);
   } catch (error) {
-    res.status(404).json({ message: "Book not found" });
+    return res.status(404).json({ message: "Book not found" });
   }
 });
 
-// PUT update book
+// ✅ PUT update book
 router.put("/:id", async (req, res) => {
-  if (!isValidBook(req.body)) {
-    return res.status(400).json({ message: "Invalid input" });
-  }
-
   try {
     const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -189,7 +187,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE book
+// ✅ DELETE a book
 router.delete("/:id", async (req, res) => {
   try {
     const deleted = await Book.findByIdAndDelete(req.params.id);
