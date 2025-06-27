@@ -131,7 +131,7 @@ const Book = require("../models/Book");
  *         description: Book not found
  */
 
-// ✅ GET all books
+// GET all books
 router.get("/", async (req, res) => {
   try {
     const books = await Book.find();
@@ -141,11 +141,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ POST add a new book
+// POST add a new book
 router.post("/", async (req, res) => {
   const { title, author, genre, publishedYear } = req.body;
 
-  if (!title || !author || !genre || !publishedYear) {
+  // Validate presence and types
+  if (
+    !title || typeof title !== "string" ||
+    !author || typeof author !== "string" ||
+    !genre || typeof genre !== "string" ||
+    typeof publishedYear !== "number"
+  ) {
     return res.status(400).json({ message: "Invalid input" });
   }
 
@@ -158,7 +164,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ GET a specific book by ID
+// GET a specific book by ID
 router.get("/:id", async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
@@ -169,13 +175,29 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ PUT update book
+// PUT update a book
 router.put("/:id", async (req, res) => {
+  const { title, author, genre, publishedYear } = req.body;
+
+  // Require all fields to be present and valid
+  if (
+    !title || typeof title !== "string" ||
+    !author || typeof author !== "string" ||
+    !genre || typeof genre !== "string" ||
+    typeof publishedYear !== "number"
+  ) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
+
   try {
-    const updated = await Book.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: false
-    });
+    const updated = await Book.findByIdAndUpdate(
+      req.params.id,
+      { title, author, genre, publishedYear },
+      {
+        new: true,
+        runValidators: false
+      }
+    );
 
     if (!updated) {
       return res.status(404).json({ message: "Book not found" });
@@ -187,7 +209,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ✅ DELETE a book
+// DELETE a book
 router.delete("/:id", async (req, res) => {
   try {
     const deleted = await Book.findByIdAndDelete(req.params.id);
