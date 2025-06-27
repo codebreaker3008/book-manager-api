@@ -103,4 +103,13 @@ npm run test:int
 
 # Run only API tests
 npm run test:api
-# Trigger workflow
+
+# Keploy Test
+![Keploy Test](https://github.com/codebreaker3008/book-manager-api/actions/workflows/ci.yml/badge.svg)
+
+# CI/CD Implementation
+![Screenshot 2025-06-27 141810](https://github.com/user-attachments/assets/40235d1e-d08c-4033-afc4-46ebccabb2e6)
+
+
+![Screenshot 2025-06-27 160807](https://github.com/user-attachments/assets/59598904-315c-4d31-8b1a-6867041b4997)
+
