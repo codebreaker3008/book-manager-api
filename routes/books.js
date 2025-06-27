@@ -148,7 +148,7 @@ router.post("/", async (req, res) => {
 
   const parsedYear = Number(publishedYear);
   if (!title || !author || !genre || isNaN(parsedYear)) {
-    return res.status(400).json({ message: "Invalid input" });
+    return res.status(400).json({ message: "Title is required" });
   }
 
   try {
@@ -180,7 +180,7 @@ router.put("/:id", async (req, res) => {
 
   const { title, author, genre, publishedYear } = req.body;
   if (!title || !author || !genre || isNaN(Number(publishedYear))) {
-    return res.status(400).json({ message: "Invalid input" });
+    return res.status(400).json({ message: "Published year must be a number" });
   }
 
   try {
