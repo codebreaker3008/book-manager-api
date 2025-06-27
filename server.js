@@ -41,7 +41,7 @@ app.get("/", (req, res) => {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Book Manager API</title>
+      <title>📚 Book Manager API</title>
       <style>
         body {
           font-family: "Segoe UI", sans-serif;
@@ -85,7 +85,7 @@ app.get("/", (req, res) => {
     </head>
     <body>
       <div class="card">
-        <h1>📚 Welcome to the Book Manager API</h1>
+        <h1>Welcome to the Book Manager API</h1>
         <p><a href="/api/books">View All Books</a> | <a href="/api-docs">API Docs</a></p>
       </div>
 
