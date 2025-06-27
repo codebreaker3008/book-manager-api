@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Book = require("../models/Book");
+const mongoose = require("mongoose"); // make sure this is at the top
+
 
 /**
  * @swagger
@@ -141,22 +143,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST add a new book
 router.post("/", async (req, res) => {
-  const { title, author, genre, publishedYear } = req.body;
+  let { title, author, genre, publishedYear } = req.body;
 
-  // Validate presence and types
-  if (
-    !title || typeof title !== "string" ||
-    !author || typeof author !== "string" ||
-    !genre || typeof genre !== "string" ||
-    typeof publishedYear !== "number"
-  ) {
-    return res.status(400).json({ message: "Title is required" });
+  const parsedYear = Number(publishedYear);
+  if (!title || !author || !genre || isNaN(parsedYear)) {
+    return res.status(400).json({ message: "Invalid input" });
   }
 
   try {
-    const newBook = new Book({ title, author, genre, publishedYear });
+    const newBook = new Book({ title, author, genre, publishedYear: parsedYear });
     await newBook.save();
     res.status(201).json(newBook);
   } catch (error) {
@@ -177,27 +173,26 @@ router.get("/:id", async (req, res) => {
 
 // PUT update a book
 router.put("/:id", async (req, res) => {
-  const { title, author, genre, publishedYear } = req.body;
+  const id = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ message: "Book not found" });
+  }
 
-  // Require all fields to be present and valid
-  if (
-    !title || typeof title !== "string" ||
-    !author || typeof author !== "string" ||
-    !genre || typeof genre !== "string" ||
-    typeof publishedYear !== "number"
-  ) {
+  const { title, author, genre, publishedYear } = req.body;
+  if (!title || !author || !genre || isNaN(Number(publishedYear))) {
     return res.status(400).json({ message: "Invalid input" });
   }
 
   try {
-    const updated = await Book.findByIdAndUpdate(
-      req.params.id,
-      { title, author, genre, publishedYear },
-      {
-        new: true,
-        runValidators: false
-      }
-    );
+    const updated = await Book.findByIdAndUpdate(id, {
+      title,
+      author,
+      genre,
+      publishedYear: Number(publishedYear),
+    }, {
+      new: true,
+      runValidators: false
+    });
 
     if (!updated) {
       return res.status(404).json({ message: "Book not found" });
@@ -211,14 +206,19 @@ router.put("/:id", async (req, res) => {
 
 // DELETE a book
 router.delete("/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ message: "Book not found" });
+  }
+
   try {
-    const deleted = await Book.findByIdAndDelete(req.params.id);
+    const deleted = await Book.findByIdAndDelete(id);
     if (!deleted) {
       return res.status(404).json({ message: "Book not found" });
     }
     res.status(200).json({ message: "Book deleted successfully" });
   } catch (error) {
-    return res.status(404).json({ message: "Book not found" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
