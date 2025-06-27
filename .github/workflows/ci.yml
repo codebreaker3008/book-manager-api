@@ -1,0 +1,42 @@
+name: Keploy API Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-keploy-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Start Application
+        run: |
+          npm start &
+          sleep 10
+
+      - name: Install Keploy CLI
+        run: |
+          curl --silent -L https://keploy.io/ent/install.sh | bash
+
+      - name: Run Keploy Test Suite
+        run: |
+          export KEPLOY_API_KEY=1Q6p3HsbYeXJWJFP1Q== && keploy test-suite --app=88aac4f9-1a9d-4d0d-a689-21c64d5bb5c0 --base-path https://book-manager-api-mt27.onrender.com --cloud
