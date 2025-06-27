@@ -152,7 +152,7 @@ router.post("/", async (req, res) => {
     !genre || typeof genre !== "string" ||
     typeof publishedYear !== "number"
   ) {
-    return res.status(400).json({ message: "Invalid input" });
+    return res.status(400).json({ message: "Title is required" });
   }
 
   try {
