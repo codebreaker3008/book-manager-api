@@ -104,3 +104,6 @@ npm run test:int
 # Run only API tests
 npm run test:api
 # Trigger workflow
+
+![Keploy Test](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml/badge.svg)
+
