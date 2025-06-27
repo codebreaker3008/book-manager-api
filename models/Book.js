@@ -32,3 +32,13 @@ const bookSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Book", bookSchema);
+
+bookSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
+  transform: function (doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+  }
+});
+
