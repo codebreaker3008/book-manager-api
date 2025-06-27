@@ -189,7 +189,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST add a new book
-router.post("/", async (req, res, next) => {
+router.post("/:id", async (req, res, next) => {
   try {
     const newBook = new Book(req.body);
     await newBook.save();
