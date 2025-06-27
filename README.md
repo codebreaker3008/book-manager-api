@@ -104,5 +104,6 @@ npm run test:int
 # Run only API tests
 npm run test:api
 # Trigger workflow
+![Keploy Test](https://github.com/codebreaker3008/book-manager-api/actions/workflows/ci.yml/badge.svg)
 
 
